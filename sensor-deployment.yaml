@@ -13,7 +13,7 @@ spec:
     - template:
         name: github-actions
         http:
-          url: https://api.github.com/repos/vfarcic/argo-events-gh-demo/dispatches
+          url: https://api.github.com/repos/mitin20/argo-events-gh-demo/dispatches
           method: POST
           payload:
             - src:

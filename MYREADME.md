@@ -10,7 +10,7 @@ cd argo-events-gh-demo
 gh repo set-default
 
 
-# k8s
+# k8s & argo setup
 colima start --cpu 4 --memory 8 --mount $HOME:w || colima kubernetes start 
 
 kubectl create namespace a-team
@@ -45,3 +45,28 @@ helm upgrade --install argo-events argo-events \
 
 kubectl --namespace argo-events apply \
     --filename https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
+
+export GITHUB_TOKEN=[...]
+
+kubectl --namespace argo-events \
+    create secret generic github \
+    --from-literal token="token $GITHUB_TOKEN"    
+
+
+# Argo Events Setup
+kubectl apply --filename sa.yaml
+
+kubectl --namespace argo-events apply \
+    --filename event-source-deployment.yaml
+
+kubectl --namespace argo-events apply \
+    --filename sensor-deployment.yaml
+
+# Combining Workflow Runs and GitOps
+Modify main.go 
+
+git add .
+
+git commit -m "Silly demo"
+
+git push
