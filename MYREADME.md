@@ -70,3 +70,5 @@ git add .
 git commit -m "Silly demo"
 
 git push
+
+gh repo view --web
