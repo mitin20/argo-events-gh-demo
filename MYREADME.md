@@ -20,7 +20,8 @@ helm upgrade --install argocd argo-cd \
     --namespace argocd --create-namespace \
     --values values-argocd.yaml --wait
 
-kubectl port-forward service/argocd-server -n argocd 8080:443 >/dev/null 2>&1 &
+kubectl port-forward service/argocd-server -n argocd 8080:443 >/dev/null 2>&1 &  
+open http://localhost:8080
 
 REPO_URL=$(git config --get remote.origin.url)
 
@@ -83,3 +84,9 @@ git commit -m "Silly demo"
 git push
 
 gh repo view --web
+
+
+
+# To exit the Devbox shell and return to your regular shell:
+
+exit
