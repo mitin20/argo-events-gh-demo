@@ -47,10 +47,21 @@ kubectl --namespace argo-events apply \
     --filename https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
 
 export GITHUB_TOKEN=[...]
+curl -sS -f -I -H "Authorization: token $GITHUB_TOKEN" https://api.github.com | grep -i x-oauth-scopes
 
 kubectl --namespace argo-events \
     create secret generic github \
-    --from-literal token="token $GITHUB_TOKEN"    
+    --from-literal token="token $GITHUB_TOKEN"
+
+kubectl get secret -nargo-events github -o jsonpath="{.data.token}" | base64 -d    
+
+export GITHUB_USER=[...]
+
+yq --inplace \
+    ".spec.triggers[0].template.http.url = \"https://api.github.com/repos/$GITHUB_USER/argo-events-gh-demo/dispatches\"" \
+    sensor-deployment.yaml
+
+gh repo view --web    
 
 
 # Argo Events Setup
