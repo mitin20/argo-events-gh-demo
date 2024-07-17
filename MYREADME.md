@@ -86,6 +86,66 @@ git push
 gh repo view --web
 
 
+# We can confirm that’s what really happened by pulling the latest changes from Git.
+
+git pull
+We should see from the output that silly-demo/deployment.yaml was modified, thus confirming that the first workflow run was successful.
+
+# From now on, Argo CD should detect the change and we should see new Pods deployed to the cluster.
+
+kubectl --namespace a-team get pods
+:(
+
+## troubleshooting...
+stern argocd-repo-server -nargocd
+
+argocd-repo-server-5d8cc48795-z8tzs repo-server time="2024-07-16T18:16:27Z" level=error msg="finished unary call with code Unknown" error="error creating SSH agent: \"SSH agent requested but SSH_AUTH_SOCK not-specified\"" grpc.code=Unknown grpc.method=GenerateManifest grpc.service=repository.RepoServerService grpc.start_time="2024-07-16T18:16:27Z" grpc.time_ms=2.848 span.kind=server system=grpc
+
+kubectl config set-context --current --namespace=argocd
+argocd repo add https://github.com/mitin20/argo-events-gh-demo --username mitin20 --password $GITHUB_TOKEN
+argocd app list
+argocd app get apps
+
+ComparisonError  Failed to load target state: failed to generate manifest for source 1 of 1: rpc error: code = Unknown desc = error creating SSH agent: "SSH agent requested but SSH_AUTH_SOCK not-specified"  2024-07-16 13:00:41 -0500 -05
+
+argocd app sync apps
+
+FATA[0000] rpc error: code = FailedPrecondition desc = error resolving repo revision: rpc error: code = Unknown desc = error creating SSH agent: "SSH agent requested but SSH_AUTH_SOCK not-specified"
+
+argocd admin export
+    message: 'Failed to load target state: failed to generate manifest for source
+      1 of 1: rpc error: code = Unknown desc = error creating SSH agent: "SSH agent
+      requested but SSH_AUTH_SOCK not-specified"'
+
+eval `ssh-agent -s`
+ssh-add ~/.ssh/id_rsa_m1
+argocd repo add git@github.com:mitin20/argo-events-gh-demo.git --ssh-private-key-path ~/.ssh/id_rsa_m1
+
+error testing repository connectivity: ssh: this private key is passphrase protected
+
+ssh-keygen -t ed25519 -C "mitin20@gmail.com"
+eval "$(ssh-agent -s)"
+vim ~/.ssh/config
+
+Host github.com
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+pbcopy < ~/.ssh/id_ed25519.pub
+
+argocd repo add git@github.com:mitin20/argo-events-gh-demo.git --ssh-private-key-path ~/.ssh/id_ed25519
+
+argocd app sync apps
+
+kubectl --namespace a-team get pods
+:)
+
+
+to be continued...
+
+
 
 # To exit the Devbox shell and return to your regular shell:
 
