@@ -145,7 +145,18 @@ kubectl --namespace a-team get pods
 
 to be continued...
 
+diff event-source-deployment.yaml event-source-replicaset.yaml
 
+kubectl --namespace argo-events apply \
+    --filename event-source-replicaset.yaml
+
+Modify main.go 
+
+git add .
+
+git commit -m "Silly demo"
+
+git push
 
 # To exit the Devbox shell and return to your regular shell:
 
